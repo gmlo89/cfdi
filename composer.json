@@ -1,0 +1,13 @@
+{
+    "name": "gmlo/cfdi",
+    "description": "CFDI 3.3 México",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Giovanni Lopez",
+            "email": "gmlo89@hotmail.com"
+        }
+    ],
+    "require": {}
+}
