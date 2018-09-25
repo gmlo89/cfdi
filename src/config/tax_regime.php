@@ -1,0 +1,130 @@
+<?php
+
+return [
+    [
+        'code' => '601',
+        'description' => 'General de Ley Personas Morales',
+        'fisica' => false,
+        'moral' => true,
+    ],
+    [
+        'code' => '603',
+        'description' => 'Personas Morales con Fines no Lucrativos',
+        'fisica' => false,
+        'moral' => true,
+    ],
+    [
+        'code'          => '605',
+        'description'   => 'Sueldos y Salarios e Ingresos Asimilados a Salarios',
+        'fisica'        => true,
+        'moral'         => false,
+    ],
+    [
+        'code'          => '606',
+        'description'   => 'Arrendamiento',
+        'fisica'        => true,
+        'moral'         => false,
+    ],
+    [
+        'code'          => '608',
+        'description'   => 'Demás ingresos',
+        'fisica'        => true,
+        'moral'         => false,
+    ],
+    [
+        'code'          => '609',
+        'description'   => 'Consolidación',
+        'fisica'        => false,
+        'moral'         => true,
+    ],
+    [
+        'code'          => '610',
+        'description'   => 'Residentes en el Extranjero sin Establecimiento Permanente en México',
+        'fisica'        => true,
+        'moral'         => true,
+    ],
+    [
+        'code'          => '611',
+        'description'   => 'Ingresos por Dividendos (socios y accionistas)',
+        'fisica'        => true,
+        'moral'         => false,
+    ],
+    [
+        'code'          => '612',
+        'description'   => 'Personas Físicas con Actividades Empresariales y Profesionales',
+        'fisica'        => true,
+        'moral'         => false,
+    ],
+    [
+        'code'          => '614',
+        'description'   => 'Ingresos por intereses',
+        'fisica'        => true,
+        'moral'         => false,
+    ],
+    [
+        'code'          => '616',
+        'description'   => 'Sin obligaciones fiscales',
+        'fisica'        => true,
+        'moral'         => false,
+    ],
+    [
+        'code'          => '620',
+        'description'   => 'Sociedades Cooperativas de Producción que optan por diferir sus ingresos',
+        'fisica'        => false,
+        'moral'         => true,
+    ],
+    [
+        'code'          => '621',
+        'description'   => 'Incorporación Fiscal',
+        'fisica'        => true,
+        'moral'         => false,
+    ],
+    [
+        'code'          => '622',
+        'description'   => 'Actividades Agrícolas, Ganaderas, Silvícolas y Pesqueras',
+        'fisica'        => true,
+        'moral'         => true,
+    ],
+    [
+        'code'          => '623',
+        'description'   => 'Opcional para Grupos de Sociedades',
+        'fisica'        => false,
+        'moral'         => true,
+    ],
+    [
+        'code'          => '624',
+        'description'   => 'Coordinados',
+        'fisica'        => false,
+        'moral'         => true,
+    ],
+    [
+        'code'          => '628',
+        'description'   => 'Hidrocarburos',
+        'fisica'        => false,
+        'moral'         => true,
+    ],
+    [
+        'code'          => '607',
+        'description'   => 'Régimen de Enajenación o Adquisición de Bienes',
+        'fisica'        => false,
+        'moral'         => true,
+    ],
+    [
+        'code'          => '629',
+        'description'   => 'De los Regímenes Fiscales Preferentes y de las Empresas Multinacionales',
+        'fisica'        => true,
+        'moral'         => false,
+    ],
+    [
+        'code'          => '630',
+        'description'   => 'Enajenación de acciones en bolsa de valores',
+        'fisica'        => true,
+        'moral'         => false,
+    ],
+    [
+        'code'          => '615',
+        'description'   => 'Régimen de los ingresos por obtención de premios',
+        'fisica'        => true,
+        'moral'         => false,
+    ],
+];
