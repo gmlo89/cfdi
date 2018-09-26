@@ -12,11 +12,16 @@ El metodo `generatePemFiles(..)` ademas valida que los certificados esten vigent
 ```php
 $openssl = new OpenSSL('ruta/al_archivo/.cer', 'ruta/al_archivo/.key', 'RFC del emisor', 'Contraseña');
 $openssl->generatePemFiles('directorio/donde_se_guardaran_los_archivos/.cer.pem_y_.key.pem');
-echo $openssl->cer_pem_path; //Ruta del archivo .cer.pem
-echo $openssl->key_pem_path; //Ruta del archivo .key.pem
-echo $openssl->getCertificateSerialNumber(); //Número del sertificado.
-echo $openssl->start_date; //Fecha de inicio del periodo de validez del certificado.
-echo $openssl->end_date; //Fecha de fin del periodo de validez del certificado.
+//Ruta del archivo .cer.pem
+echo $openssl->cer_pem_path; 
+//Ruta del archivo .key.pem
+echo $openssl->key_pem_path; 
+//Número del certificado.
+echo $openssl->getCertificateSerialNumber(); 
+//Fecha de inicio del periodo de validez del certificado.
+echo $openssl->start_date; 
+//Fecha de fin del periodo de validez del certificado.
+echo $openssl->end_date; 
 ```
 
 
