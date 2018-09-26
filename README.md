@@ -1,7 +1,7 @@
 # CFDI 3.3
 
 ## EN DESARROLLO
-**IMPORTANTE**  este componente se encuentra en desarrollo y probablemente tenga cambios muy severos. 
+**IMPORTANTE**  este componente se encuentra en desarrollo y probablemente tenga cambios severos. 
 
 
 >Nota: Para poder generar los CFDIs es necesario contar con el certificado de sello digital o CSD (los archivos .cer y .key), ademas de conocer la contraseña de la llave privada.
