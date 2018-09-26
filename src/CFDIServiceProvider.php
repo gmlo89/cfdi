@@ -21,11 +21,13 @@ class CFDIServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        require __DIR__ . '/Utils/functions.php';
+        $this->app->singleton('sat_catalogs', function () {
+            return $this->app->make(SatCatalogs::class);
+        });
         $this->loadConfigFiles();
 
-        $this->app->singleton('get-sat-catalogs', function() {
-            return new SatCatalogs();
-        });
+        //require './Utils/Helpers.php';
         /*$this->app->bind(
             'Laracasts\Flash\SessionStore',
             'Laracasts\Flash\LaravelSessionStore'
@@ -54,7 +56,7 @@ class CFDIServiceProvider extends ServiceProvider
 
     protected function loadTranslations()
     {
-        $this->loadTranslationsFrom(__DIR__.'/lang', 'CFDI');
+        $this->loadTranslationsFrom(__DIR__ . '/lang', 'CFDI');
 
         /*$this->publishes([
             __DIR__.'/translations' => resource_path('lang/vendor/courier'),
@@ -67,7 +69,7 @@ class CFDIServiceProvider extends ServiceProvider
     protected function loadConfigFiles()
     {
         $config_files = [
-            'countries', 'ine', 'tax_regime', 'taxes', 'types', 'units', 'cfdi_uses', 'core', 'pay_ways', 'pay_methods'
+            'countries', 'ine', 'tax_regime', 'taxes', 'types', 'units', 'cfdi_uses', 'core', 'pay_methods'
         ];
         foreach ($config_files as $file) {
             $configPath = __DIR__ . "/config/{$file}.php";

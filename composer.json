@@ -1,5 +1,5 @@
 {
-    "name": "gmlo/cfdi",
+    "name": "gmlo89/cfdi",
     "description": "CFDI 3.3 México",
     "type": "library",
     "license": "MIT",
@@ -9,5 +9,13 @@
             "email": "gmlo89@hotmail.com"
         }
     ],
-    "require": {}
+    "require": {
+        "php": ">=7.1.3",
+        "illuminate/translation": "5.7.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Gmlo\\CFDI\\": "src/"
+        }
+    }
 }
