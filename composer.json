@@ -3,6 +3,8 @@
     "description": "CFDI 3.3 México",
     "type": "library",
     "license": "MIT",
+    "version": "0",
+    "keywords": ["Laravel", "CFDI", "PHP"],
     "authors": [
         {
             "name": "Giovanni Lopez",
