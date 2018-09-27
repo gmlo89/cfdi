@@ -5,23 +5,36 @@ namespace Gmlo\CFDI;
 use Gmlo\CFDI\Exceptions\CFDIException;
 use Gmlo\CFDI\Utils\XML;
 use Validator;
+use Gmlo\CFDI\Nodes\Receiver;
+use Gmlo\CFDI\Nodes\Transmitter;
+use Gmlo\CFDI\Nodes\Concept;
+use Gmlo\CFDI\Nodes\Concepts;
 
 class CFDIMaker
 {
     protected $type = null;
     protected $data = [];
+    protected $complements = null;
+    protected $concepts = null;
+    protected $receiver;
+    protected $transmitter;
+    protected $tax_transferred = [];
 
     public $xml;
     public $config;
     public $general;
-    public $receiver;
-    public $transmitter;
-    public $concepts = [];
-    public $tax_transferred = [];
+
+    public function __get($name)
+    {
+        if (isset($this->{$name})) {
+            return $this->{$name};
+        }
+        return null;
+    }
 
     public function __construct($data, $key_path, $cer_path)
     {
-        if ($this->type and !isset($data['type'])) {
+        if ($this->type) {
             $data['type'] = $this->type;
         }
         $this->data = $data;
@@ -87,9 +100,9 @@ class CFDIMaker
         $data['total'] = 0;
         $data['subtotal'] = 0;
         $data['discount'] = 0;
-        foreach ($this->concepts as $concept) {
-            $data['subtotal'] += $concept['Importe'];
-            $data['discount'] += $concept['Importe'];
+        foreach ($this->concepts->getChilds() as $concept) {
+            $data['subtotal'] += $concept->import;
+            $data['discount'] += $concept->discount_amount;
         }
 
         $data['total'] = $data['subtotal'];
@@ -107,17 +120,14 @@ class CFDIMaker
             'cert_number' => 'required',
         ], trans('CFDI::validation_messages'));
         if ($validator->fails()) {
-            dd($validator->errors());
-            $message = 'Tienes un error con la información de un concepto.';
-            if (isset($data['description'])) {
-                $message = 'Tienes un error con la información del concepto: ' . $data['description'];
-            }
+            $message = 'Tienes un error con la información general.';
             throw new CFDIException($message, 0, null, ['errors' => $validator->errors()->all()]);
         }
 
         $data = (object)$data;
-        $this->general = [
+        $this->general = $this->other_namespaces + [
             'xmlns:cfdi' => 'http://www.sat.gob.mx/cfd/3',
+
             'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
             'xsi:schemaLocation' => 'http://www.sat.gob.mx/cfd/3 http://www.sat.gob.mx/sitio_internet/cfd/3/cfdv33.xsd',
             'Fecha' => date('Y-m-d') . 'T' . date('H:i:s'),
@@ -150,8 +160,9 @@ class CFDIMaker
     /**
     * Add concept
     */
-    public function addConcept($data)
+    public function addConcept(Concept $concept)
     {
+        /*
         $validator = Validator::make($data, [
             'quantity' => 'required|numeric|min:.01',
             'price' => 'required|numeric|min:.01',
@@ -209,52 +220,27 @@ class CFDIMaker
                 $this->tax_transferred['iva']['Importe'] += $import;
             }
         }
-
-        $this->concepts[] = $concept;
+        */
+        if (!$this->concepts) {
+            $this->concepts = new Concepts();
+        }
+        $concept->calcule();
+        $this->concepts->addChild($concept);
     }
 
     /**
     * Set receiver
     */
-    public function setReceiver($data)
+    public function setReceiver(Receiver $receiver)
     {
-        $validator = Validator::make($data, [
-            'rfc' => 'required',
-            'name' => 'required',
-            'how_use' => 'required|in:' . implode(',', array_keys(config('cfdi.cfdi_uses'))),
-        ], trans('CFDI::validation_messages'));
-        if ($validator->fails()) {
-            throw new CFDIException('Tienes un error con la información del receptor.', 0, null, ['errors' => $validator->errors()->all()]);
-        }
-
-        $data = (object)$data;
-
-        $this->receiver = [
-            'Nombre' => $data->name,
-            'ResidenciaFiscal' => isset($data->country) ? $data->country : 'MEX',
-            'UsoCFDI' => $data->how_use,
-            'Rfc' => $data->rfc
-        ];
+        $this->receiver = $receiver;
     }
 
     /**
     * Set transmitter
     */
-    public function setTransmitter($data)
+    public function setTransmitter(Transmitter $transmitter)
     {
-        $validator = Validator::make($data, [
-            'rfc' => 'required',
-            'name' => 'required',
-            'tax_regime' => 'required|in:' . implode(',', array_keys(sat_catalogs()->taxRegimeList())),
-        ], trans('CFDI::validation_messages'));
-        if ($validator->fails()) {
-            throw new CFDIException('Tienes un error con la información del emisor.', 0, null, ['errors' => $validator->errors()->all()]);
-        }
-        $data = (object)$data;
-        $this->transmitter = [
-            'Rfc' => $data->rfc,
-            'Nombre' => $data->name,
-            'RegimenFiscal' => $data->tax_regime,
-        ];
+        $this->transmitter = $transmitter;
     }
 }

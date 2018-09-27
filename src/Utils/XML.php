@@ -41,56 +41,65 @@ class XML
         $root = $this->xml->appendChild($root);
         $this->addAttributes($root, $data->general);
 
-        $transmitter = $this->xml->createElement('cfdi:Emisor');
-        $transmitter = $root->appendChild($transmitter);
-        $this->addAttributes($transmitter, $data->transmitter);
+        $this->createNode($root, $data->transmitter);
 
-        $receiver = $this->xml->createElement('cfdi:Receptor');
-        $receiver = $root->appendChild($receiver);
-        $this->addAttributes($receiver, $data->receiver);
+        $this->createNode($root, $data->receiver);
 
-        $concepts = $this->xml->createElement('cfdi:Conceptos');
-        $concepts = $root->appendChild($concepts);
-        $this->addAttributes($concepts);
+        if ($data->concepts) {
+            $this->createNode($root, $data->concepts);
 
-        foreach ($data->concepts as $concept) {
-            $concept_ = $this->xml->createElement('cfdi:Concepto');
-            $concept_ = $concepts->appendChild($concept_);
-            $taxes = $concept['taxes'];
-            unset($concept['taxes']);
-            $this->addAttributes($concept_, $concept);
+            //$concepts = $this->xml->createElement('cfdi:Conceptos');
+            //$concepts = $root->appendChild($concepts);
+            //$this->addAttributes($concepts);
 
-            $taxes_ = $this->xml->createElement('cfdi:Impuestos');
-            $taxes_ = $concept_->appendChild($taxes_);
+            /*foreach ($data->concepts as $concept) {
+                $concept_ = $this->xml->createElement('cfdi:Concepto');
+                $concept_ = $concepts->appendChild($concept_);
+
+                //$taxes = $concept['taxes'];
+                //unset($concept['taxes']);
+
+                $this->addAttributes($concept_, $concept);
+
+                /*
+                $taxes_ = $this->xml->createElement('cfdi:Impuestos');
+                $taxes_ = $concept_->appendChild($taxes_);
+
+                $taxes_t = $this->xml->createElement('cfdi:Traslados');
+                $taxes_t = $taxes_->appendChild($taxes_t);*/
+                /*
+                foreach ($taxes['transfers'] as $tax) {
+                    $tax_ = $this->xml->createElement('cfdi:Traslado');
+                    $tax_ = $taxes_t->appendChild($tax_);
+                    $this->addAttributes($tax_, $tax);
+                }*/
+            //}
+        }
+
+        if ($data->complements) {
+            $complements = $this->createNode($root, $data->complements);
+        }
+
+        /*if (count($data->tax_transferred) > 0) {
+            $taxes = $this->xml->createElement('cfdi:Impuestos');
+            $taxes = $root->appendChild($taxes);
+            //$this->addAttributes($taxes);
 
             $taxes_t = $this->xml->createElement('cfdi:Traslados');
-            $taxes_t = $taxes_->appendChild($taxes_t);
+            $taxes_t = $taxes->appendChild($taxes_t);
+            //$this->addAttributes($taxes_t);
 
-            foreach ($taxes['transfers'] as $tax) {
-                $tax_ = $this->xml->createElement('cfdi:Traslado');
-                $tax_ = $taxes_t->appendChild($tax_);
-                $this->addAttributes($tax_, $tax);
+            $tax_transferreds = 0;
+            foreach ($data->tax_transferred as $tax) {
+                $aux = $this->xml->createElement('cfdi:Traslado');
+                $aux = $taxes_t->appendChild($aux);
+                $this->addAttributes($aux, $tax);
+                $tax_transferreds += $tax['Importe'];
             }
-        }
-
-        $taxes = $this->xml->createElement('cfdi:Impuestos');
-        $taxes = $root->appendChild($taxes);
-        $this->addAttributes($taxes);
-
-        $taxes_t = $this->xml->createElement('cfdi:Traslados');
-        $taxes_t = $taxes->appendChild($taxes_t);
-        $this->addAttributes($taxes_t);
-
-        $tax_transferreds = 0;
-        foreach ($data->tax_transferred as $tax) {
-            $aux = $this->xml->createElement('cfdi:Traslado');
-            $aux = $taxes_t->appendChild($aux);
-            $this->addAttributes($aux, $tax);
-            $tax_transferreds += $tax['Importe'];
-        }
-        if ($tax_transferreds > 0) {
-            $this->addAttributes($taxes, ['TotalImpuestosTrasladados' => $tax_transferreds]);
-        }
+            if ($tax_transferreds > 0) {
+                $this->addAttributes($taxes, ['TotalImpuestosTrasladados' => $tax_transferreds]);
+            }
+        }*/
 
         $original_string = $this->makeOriginalString();
 
@@ -145,6 +154,10 @@ class XML
 
     protected function addAttributes(&$node, $attributes = [])
     {
+        if (is_object($attributes) and method_exists($attributes, 'toXMLArray')) {
+            $attributes = $attributes->toXMLArray();
+        }
+
         foreach ($attributes as $key => $value) {
             //$value = htmlspecialchars($value);
             //$value = htmlspecialchars($value, ENT_QUOTES|ENT_XML1);
@@ -157,5 +170,16 @@ class XML
                 $node->setAttribute($key, $value);
             }
         }
+    }
+
+    protected function createNode(&$parent, $node)
+    {
+        $element = $this->xml->createElement($node->node_name);
+        $element = $parent->appendChild($element);
+        $this->addAttributes($element, $node);
+        foreach ($node->getChilds() as $child) {
+            $this->createNode($element, $child);
+        }
+        return $element;
     }
 }
