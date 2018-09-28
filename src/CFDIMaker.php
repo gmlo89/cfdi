@@ -41,16 +41,6 @@ class CFDIMaker
         $this->xml = new XML($key_path, $cer_path);
     }
 
-    public function getXML()
-    {
-        return $this->xml->getXML();
-    }
-
-    public function loadXML($xml)
-    {
-        return $this->xml->loadXML($xml);
-    }
-
     public function generate()
     {
         $this->setGenerals($this->data);

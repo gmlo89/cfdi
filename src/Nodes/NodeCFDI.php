@@ -62,11 +62,12 @@ class NodeCFDI
 
     protected function validate()
     {
+        //$this->calcule();
         $validator = Validator::make($this->data, $this->getRules(), trans('CFDI::validation_messages'));
 
         if ($validator->fails()) {
             $message = 'Tienes un error en ' . $this->node_name . '. ';
-
+            //dd($this->getData());
             if (config('app.env') == 'local' and $validator->errors()) {
                 $message .= json_encode($validator->errors());
             }

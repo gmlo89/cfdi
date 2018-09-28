@@ -33,7 +33,94 @@ class XML
     /**
     * Generate a XML with data sent
     */
-    public function generate($data)
+    public function generate($cfdi)
+    {
+        $this->xml = new \DOMDocument('1.0', 'UTF-8');
+
+        $root = $this->createNode($this->xml, $cfdi);
+
+        $this->preStamp($root, $cfdi);
+
+        if (config('app.env') == 'local') {
+            $this->xml->save(storage_path('app/cfdi_tmp.xml'));
+        }
+    }
+
+    public function preStamp($root, $cfdi)
+    {
+        $original_string = $this->makeOriginalString();
+        $certificado = $cfdi->cert_number;
+
+        $pkeyid = openssl_get_privatekey(file_get_contents($this->key_path));
+        openssl_sign($original_string, $crypttext, $pkeyid, OPENSSL_ALGO_SHA256);
+        openssl_free_key($pkeyid);
+
+        $seal = base64_encode($crypttext);
+        //$this->xml->setAttribute("sello", $sello);
+        $this->addAttributes($root, ['Sello' => $seal]);
+
+        $datos = file($this->cer_path);
+        $cert = '';
+        $carga = false;
+        for ($i = 0; $i < sizeof($datos); $i++) {
+            if (strstr($datos[$i], 'END CERTIFICATE')) {
+                $carga = false;
+            }
+            if ($carga) {
+                $cert .= trim($datos[$i]);
+            }
+            if (strstr($datos[$i], 'BEGIN CERTIFICATE')) {
+                $carga = true;
+            }
+        }
+        //$this->xml->setAttribute("certificado", $certificado);
+        $this->addAttributes($root, ['Certificado' => $cert]);
+    }
+
+    protected function makeOriginalString()
+    {
+        $xml = new \DOMDocument('1.0', 'UTF-8');
+        $xml->loadXML($this->xml->saveXML());
+
+        $xsl = new \DOMDocument('1.0', 'UTF-8');
+        $xsl->load(__DIR__ . '/../resources/xslt/3.3/cadenaoriginal_3_3.xslt');
+        $proc = new \XSLTProcessor;
+        $proc->importStyleSheet($xsl);
+        return $proc->transformToXML($xml);
+    }
+
+    protected function addAttributes(&$node, $attributes = [])
+    {
+        if (is_object($attributes) and method_exists($attributes, 'toXMLArray')) {
+            $attributes = $attributes->toXMLArray();
+        }
+
+        foreach ($attributes as $key => $value) {
+            //$value = htmlspecialchars($value);
+            //$value = htmlspecialchars($value, ENT_QUOTES|ENT_XML1);
+            $value = preg_replace('/\s\s+/', ' ', $value);
+            $value = trim($value);
+            if (strlen($value) > 0) {
+                $value = str_replace('|', '/', $value);
+                //$value = str_replace("'", "\&apos;", $value);
+                $value = utf8_encode($value);
+                $node->setAttribute($key, $value);
+            }
+        }
+    }
+
+    protected function createNode(&$parent, $node)
+    {
+        $element = $this->xml->createElement($node->node_name);
+        $element = $parent->appendChild($element);
+        $this->addAttributes($element, $node);
+        foreach ($node->getChilds() as $child) {
+            $this->createNode($element, $child);
+        }
+        return $element;
+    }
+
+    public function generate2($data)
     {
         $this->data = $data;
         $this->xml = new \DOMDocument('1.0', 'UTF-8');
@@ -108,78 +195,5 @@ class XML
         if (config('app.env') == 'local') {
             $this->xml->save(storage_path('app/cfdi_tmp.xml'));
         }
-    }
-
-    public function preStamp($original_string, $root)
-    {
-        $certificado = $this->data->general['NoCertificado'];
-
-        $pkeyid = openssl_get_privatekey(file_get_contents($this->key_path));
-        openssl_sign($original_string, $crypttext, $pkeyid, OPENSSL_ALGO_SHA256);
-        openssl_free_key($pkeyid);
-
-        $sello = base64_encode($crypttext);
-        //$this->xml->setAttribute("sello", $sello);
-        $this->addAttributes($root, ['Sello' => $sello]);
-
-        $datos = file($this->cer_path);
-        $certificado = '';
-        $carga = false;
-        for ($i = 0; $i < sizeof($datos); $i++) {
-            if (strstr($datos[$i], 'END CERTIFICATE')) {
-                $carga = false;
-            }
-            if ($carga) {
-                $certificado .= trim($datos[$i]);
-            }
-            if (strstr($datos[$i], 'BEGIN CERTIFICATE')) {
-                $carga = true;
-            }
-        }
-        //$this->xml->setAttribute("certificado", $certificado);
-        $this->addAttributes($root, ['Certificado' => $certificado]);
-    }
-
-    protected function makeOriginalString()
-    {
-        $xml = new \DOMDocument('1.0', 'UTF-8');
-        $xml->loadXML($this->xml->saveXML());
-
-        $xsl = new \DOMDocument('1.0', 'UTF-8');
-        $xsl->load(__DIR__ . '/../resources/xslt/3.3/cadenaoriginal_3_3.xslt');
-        $proc = new \XSLTProcessor;
-        $proc->importStyleSheet($xsl);
-        return $proc->transformToXML($xml);
-    }
-
-    protected function addAttributes(&$node, $attributes = [])
-    {
-        if (is_object($attributes) and method_exists($attributes, 'toXMLArray')) {
-            $attributes = $attributes->toXMLArray();
-        }
-
-        foreach ($attributes as $key => $value) {
-            //$value = htmlspecialchars($value);
-            //$value = htmlspecialchars($value, ENT_QUOTES|ENT_XML1);
-            $value = preg_replace('/\s\s+/', ' ', $value);
-            $value = trim($value);
-            if (strlen($value) > 0) {
-                $value = str_replace('|', '/', $value);
-                //$value = str_replace("'", "\&apos;", $value);
-                $value = utf8_encode($value);
-                $node->setAttribute($key, $value);
-            }
-        }
-    }
-
-    protected function createNode(&$parent, $node)
-    {
-        $element = $this->xml->createElement($node->node_name);
-        $element = $parent->appendChild($element);
-        $this->addAttributes($element, $node);
-        foreach ($node->getChilds() as $child) {
-            $this->createNode($element, $child);
-        }
-        return $element;
     }
 }

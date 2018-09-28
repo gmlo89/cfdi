@@ -2,29 +2,49 @@
 
 namespace Gmlo\CFDI;
 
-use Gmlo\CFDI\Nodes\Receipt;
-use Gmlo\CFDI\Nodes\Receiver;
+use Validator;
+use Gmlo\CFDI\Exceptions\CFDIException;
 use Gmlo\CFDI\Nodes\Transmitter;
-use Gmlo\CFDI\Nodes\Nomina\Perception;
-use Gmlo\CFDI\Nodes\Nomina\Deduction;
+use Gmlo\CFDI\Nodes\Concept;
+use Gmlo\CFDI\Nodes\Receiver;
 use Gmlo\CFDI\Nodes\Nomina\Nomina as NominaComplement;
 use Gmlo\CFDI\Nodes\Nomina\Receiver as ReceriverNomina;
+use Gmlo\CFDI\Nodes\Nomina\Perception;
+use Gmlo\CFDI\Nodes\Nomina\Deduction;
 use Gmlo\CFDI\Nodes\Nomina\Perceptions;
 use Gmlo\CFDI\Nodes\Nomina\Deductions;
 use Gmlo\CFDI\Nodes\Complement;
-use Gmlo\CFDI\Nodes\Concept;
 
-class Nomina extends Receipt
+class Nomina123 extends CFDIMaker
 {
+    protected $type = 'N';
+
     protected $perceptions = [];
     protected $deductions = [];
     protected $nomina12 = null;
+    protected $other_namespaces = [
+        'xmlns:nomina12' => 'http://www.sat.gob.mx/nomina12',
+    ];
 
-    public function __construct($data = [], $other_rules = [])
+    public function __construct($data, $key_path, $cer_path)
     {
-        $data += [
-            'xmlns_nomina12' => 'http://www.sat.gob.mx/nomina12',
-        ];
+        $validator = Validator::make($data, [
+            'pay_way' => 'required|in:' . implode(',', array_keys(sat_catalogs()->payWaysList())),
+            'pay_method' => 'required|in:' . implode(',', array_keys(config('cfdi.pay_methods'))),
+            'zip_code' => 'nullable|required',
+            'serie' => 'required',
+            'folio' => 'required',
+            'cert_number' => 'required',
+            'pay_start_date' => 'required|date|date_format:Y-m-d',
+            'pay_end_date' => 'required|date|date_format:Y-m-d|after_or_equal:pay_start_date',
+            'pay_date' => 'required|date|date_format:Y-m-d',
+            'pay_days' => 'required|numeric',
+            'type' => 'required|in:O,E',
+        ], trans('CFDI::validation_messages'));
+        if ($validator->fails()) {
+            $message = 'Tienes un error con la información general de la nomina.';
+            throw new CFDIException($message, 0, null, ['errors' => $validator->errors()->all()]);
+        }
         $this->nomina12 = new NominaComplement([
             'pay_date' => $data['pay_date'],
             'pay_start_date' => $data['pay_start_date'],
@@ -34,9 +54,7 @@ class Nomina extends Receipt
             'total_perceptions' => 0,
             'total_deductions' => 0,
         ]);
-        $data['type'] = 'N';
-
-        parent::__construct($data, ['xmlns_nomina12' => 'required']);
+        parent::__construct($data, $key_path, $cer_path);
     }
 
     public function setEmployee($data)
@@ -54,29 +72,15 @@ class Nomina extends Receipt
             'state' => 'required',
         ]);
 
-        $this->setReceiver($employee);
+        parent::setReceiver($employee);
     }
 
     public function setEmployer($data)
     {
-        $this->setTransmitter(new Transmitter($data));
+        parent::setTransmitter(new Transmitter($data));
     }
 
-    public function addPerception($type, $code, $concept, $import_taxed, $import_exempt)
-    {
-        $perception = new Perception(compact('type', 'code', 'concept', 'import_taxed', 'import_exempt'));
-        $this->perceptions[] = $perception;
-        //$this->addChild($perception);
-    }
-
-    public function addDeduction($type, $code, $concept, $import)
-    {
-        $deduction = new Deduction(compact('type', 'code', 'concept', 'import'));
-        $this->deductions[] = $deduction;
-        //$this->addChild($deduction);
-    }
-
-    public function calcule()
+    public function generate()
     {
         $this->nomina12->addChild(new ReceriverNomina($this->receiver->getData()));
 
@@ -94,11 +98,9 @@ class Nomina extends Receipt
         $deductions->calcule();
         $this->nomina12->addChild($deductions);
         $this->nomina12->calcule();
-
         $complement = new Complement();
         $complement->addChild($this->nomina12);
-        //$this->complements = $complement;
-        $this->addChild($complement);
+        $this->complements = $complement;
 
         $this->addConcept(new Concept([
             'quantity' => 1,
@@ -110,6 +112,16 @@ class Nomina extends Receipt
             'discount' => $deductions->total,
         ]));
 
-        parent::calcule();
+        parent::generate();
+    }
+
+    public function addPerception($type, $code, $concept, $import_taxed, $import_exempt)
+    {
+        $this->perceptions[] = new Perception(compact('type', 'code', 'concept', 'import_taxed', 'import_exempt'));
+    }
+
+    public function addDeduction($type, $code, $concept, $import)
+    {
+        $this->deductions[] = new Deduction(compact('type', 'code', 'concept', 'import'));
     }
 }

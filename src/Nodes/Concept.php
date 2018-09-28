@@ -32,7 +32,7 @@ class Concept extends NodeCFDI
 
     public function calcule()
     {
-        $this->validate();
+        //$this->validate();
 
         $this->import = ($this->quantity * $this->price);
         if (!$this->discount) {
