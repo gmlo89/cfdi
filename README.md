@@ -3,6 +3,7 @@
 ## EN DESARROLLO
 **IMPORTANTE**  este componente se encuentra en desarrollo y probablemente tenga cambios severos. 
 
+Si utilizas los servicios de Finkok para timbrado, talvez te puede servir [https://github.com/gmlo89/Finkok]
 
 >Nota: Para poder generar los CFDIs es necesario contar con el certificado de sello digital o CSD (los archivos .cer y .key), ademas de conocer la contraseña de la llave privada.
 
@@ -31,7 +32,7 @@ echo $openssl->end_date;
 * CFDI de Ingresos
 
 
-### Development
-By [@gmlo_89]
+### Development By [@gmlo_89]
 
  [@gmlo_89]: <https://twitter.com/gmlo_89>
+ [https://github.com/gmlo89/Finkok]: <https://github.com/gmlo89/Finkok>
