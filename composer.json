@@ -3,7 +3,6 @@
     "description": "CFDI 3.3 México / Laravel",
     "type": "library",
     "license": "MIT",
-    "version": "0",
     "keywords": ["Laravel", "CFDI", "PHP"],
     "authors": [
         {
@@ -11,13 +10,10 @@
             "email": "gmlo89@hotmail.com"
         }
     ],
-    "require": {
-        "php": ">=7.1.3",
-        "illuminate/translation": "5.7.*"
-    },
     "autoload": {
         "psr-4": {
             "Gmlo\\CFDI\\": "src/"
         }
-    }
+    },
+    "minimum-stability": "dev"
 }

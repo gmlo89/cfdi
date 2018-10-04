@@ -6,7 +6,7 @@ use Gmlo\CFDI\Nodes\NodeCFDI;
 
 class Deduction extends NodeCFDI
 {
-    public $node_name = 'nomina12:deduccion';
+    public $node_name = 'nomina12:Deduccion';
 
     protected $dictionary = [
         'type' => 'TipoDeduccion',

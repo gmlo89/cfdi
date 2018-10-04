@@ -6,7 +6,7 @@ use Gmlo\CFDI\Nodes\NodeCFDI;
 
 class Perceptions extends NodeCFDI
 {
-    public $node_name = 'nomina12:percepciones';
+    public $node_name = 'nomina12:Percepciones';
     protected $dictionary = [
         'total_salaries' => 'TotalSueldos',
         'total_taxed' => 'TotalGravado',

@@ -4,11 +4,11 @@ namespace Gmlo\CFDI\Nodes;
 
 class Transmitter extends NodeCFDI
 {
-    public $node_name = 'cfdi:emisor';
+    public $node_name = 'cfdi:Emisor';
 
     protected $dictionary = [
         'rfc' => 'Rfc',
-        'name' => 'Name',
+        'name' => 'Nombre',
         'tax_regime' => 'RegimenFiscal',
     ];
 

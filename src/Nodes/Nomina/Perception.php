@@ -6,7 +6,7 @@ use Gmlo\CFDI\Nodes\NodeCFDI;
 
 class Perception extends NodeCFDI
 {
-    public $node_name = 'nomina12:percepcion';
+    public $node_name = 'nomina12:Percepcion';
     protected $dictionary = [
         'type' => 'TipoPercepcion',
         'code' => 'Clave',

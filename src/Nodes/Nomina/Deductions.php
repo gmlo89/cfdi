@@ -6,7 +6,7 @@ use Gmlo\CFDI\Nodes\NodeCFDI;
 
 class Deductions extends NodeCFDI
 {
-    public $node_name = 'nomina12:deducciones';
+    public $node_name = 'nomina12:Deducciones';
     protected $dictionary = [
         'total' => 'TotalImpuestosRetenidos',
     ];

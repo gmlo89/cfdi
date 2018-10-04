@@ -4,7 +4,7 @@ namespace Gmlo\CFDI\Nodes;
 
 class Concept extends NodeCFDI
 {
-    public $node_name = 'cfdi:concepto';
+    public $node_name = 'cfdi:Concepto';
     protected $dictionary = [
         'quantity' => 'Cantidad',
         'price' => 'ValorUnitario',
@@ -24,7 +24,7 @@ class Concept extends NodeCFDI
             'description' => 'required',
             'category_code' => 'required',
             'unit' => 'required|in:' . implode(',', array_keys(sat_catalogs()->unitsList())),
-            'unit_str' => 'required|in:' . implode(',', array_values(sat_catalogs()->unitsList())),
+            'unit_str' => 'nullable|in:' . implode(',', array_values(sat_catalogs()->unitsList())),
             'discount' => 'nullable|numeric',
             'import' => 'nullable|numeric',
         ];
@@ -38,7 +38,7 @@ class Concept extends NodeCFDI
         if (!$this->discount) {
             $this->discount = 0;
         }
-        $this->import -= $this->discount;
+        //$this->import -= $this->discount;
 
         // calcule taxs
     }

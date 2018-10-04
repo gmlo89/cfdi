@@ -4,5 +4,5 @@ namespace Gmlo\CFDI\Nodes;
 
 class Concepts extends NodeCFDI
 {
-    public $node_name = 'cfdi:conceptos';
+    public $node_name = 'cfdi:Conceptos';
 }

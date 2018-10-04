@@ -37,6 +37,7 @@ class Nomina extends Receipt
         $data['type'] = 'N';
 
         parent::__construct($data, ['xmlns_nomina12' => 'required']);
+        $this->data['xsi_schemaLocation'] .= 'http://www.sat.gob.mx/nomina12 http://www.sat.gob.mx/sitio_internet/cfd/nomina/nomina12.xsd';
     }
 
     public function setEmployee($data)
@@ -98,7 +99,6 @@ class Nomina extends Receipt
         $complement = new Complement();
         $complement->addChild($this->nomina12);
         //$this->complements = $complement;
-        $this->addChild($complement);
 
         $this->addConcept(new Concept([
             'quantity' => 1,
@@ -106,10 +106,11 @@ class Nomina extends Receipt
             'description' => 'Pago de nómina',
             'category_code' => '84111505',
             'unit' => 'ACT',
-            'unit_str' => 'Actividad',
+            //'unit_str' => 'Actividad',
             'discount' => $deductions->total,
         ]));
 
         parent::calcule();
+        $this->addChild($complement);
     }
 }

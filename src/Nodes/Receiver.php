@@ -4,11 +4,11 @@ namespace Gmlo\CFDI\Nodes;
 
 class Receiver extends NodeCFDI
 {
-    public $node_name = 'cfdi:receptor';
+    public $node_name = 'cfdi:Receptor';
 
     protected $dictionary = [
         'rfc' => 'Rfc',
-        'name' => 'Name',
+        'name' => 'Nombre',
         'how_use' => 'UsoCFDI',
     ];
 

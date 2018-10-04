@@ -6,7 +6,7 @@ use Gmlo\CFDI\Nodes\NodeCFDI;
 
 class Nomina extends NodeCFDI
 {
-    public $node_name = 'nomina12:nomina';
+    public $node_name = 'nomina12:Nomina';
 
     protected $data = [
         'version' => '1.2'

@@ -103,7 +103,7 @@ class XML
             if (strlen($value) > 0) {
                 $value = str_replace('|', '/', $value);
                 //$value = str_replace("'", "\&apos;", $value);
-                $value = utf8_encode($value);
+                //$value = utf8_encode($value);
                 $node->setAttribute($key, $value);
             }
         }

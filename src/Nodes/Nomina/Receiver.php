@@ -6,7 +6,7 @@ use Gmlo\CFDI\Nodes\NodeCFDI;
 
 class Receiver extends NodeCFDI
 {
-    public $node_name = 'nomina12:receptor';
+    public $node_name = 'nomina12:Receptor';
     protected $dictionary = [
         'curp' => 'Curp',
         'imss' => 'NumSeguridadSocial',

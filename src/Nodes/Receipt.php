@@ -6,7 +6,7 @@ use Gmlo\CFDI\Utils\XML;
 
 class Receipt extends NodeCFDI
 {
-    public $node_name = 'cfdi:comprobante';
+    public $node_name = 'cfdi:Comprobante';
     protected $key_path;
     protected $cer_path;
     protected $receiver;
@@ -19,7 +19,7 @@ class Receipt extends NodeCFDI
         'total' => 'Total',
         'type' => 'TipoDeComprobante',
         'pay_method' => 'MetodoPago',
-        'zip_code' => 'CodigoPostal',
+        'zip_code' => 'LugarExpedicion',
         'serie' => 'Serie',
         'folio' => 'Folio',
         'cert_number' => 'NoCertificado',
@@ -53,7 +53,7 @@ class Receipt extends NodeCFDI
         $this->data = [
             'xmlns_cfdi' => 'http://www.sat.gob.mx/cfd/3',
             'xmlns_xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
-            'xsi_schemaLocation' => 'http://www.sat.gob.mx/cfd/3 http://www.sat.gob.mx/sitio_internet/cfd/3/cfdv33.xsd',
+            'xsi_schemaLocation' => 'http://www.sat.gob.mx/cfd/3 http://www.sat.gob.mx/sitio_internet/cfd/3/cfdv33.xsd ',
             'date' => date('Y-m-d') . 'T' . date('H:i:s'),
             'version' => '3.3',
             'currency' => 'MXN',
@@ -72,6 +72,11 @@ class Receipt extends NodeCFDI
         $this->calcule();
         $this->xml = new XML($this->key_path, $this->cer_path);
         $this->xml->generate($this);
+    }
+
+    public function getXML()
+    {
+        return $this->xml->getXML();
     }
 
     protected function getRules()
@@ -103,7 +108,7 @@ class Receipt extends NodeCFDI
             foreach ($this->concepts as $item) {
                 $item->calcule();
                 $this->subtotal += $item->import;
-                $this->discount += $item->discount_amount;
+                $this->discount += $item->discount;
                 $concepts->addChild($item);
             }
             $this->total = $this->subtotal - $this->discount;
