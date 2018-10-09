@@ -15,5 +15,10 @@
             "Gmlo\\CFDI\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Gmlo\\CFDI\\Tests\\": "tests"
+        }
+    },
     "minimum-stability": "dev"
 }
