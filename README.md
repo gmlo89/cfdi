@@ -7,6 +7,21 @@ Si utilizas los servicios de Finkok para timbrado, talvez te puede servir [https
 
 >Nota: Para poder generar los CFDIs es necesario contar con el certificado de sello digital o CSD (los archivos .cer y .key), ademas de conocer la contraseña de la llave privada.
 
+### Instalación
+Ejecutar en la terminal:
+```sh
+composer require gmlo89/cfdi
+```
+Agregar el Service Provider en `config/app.php`
+```php
+...
+    'providers' => [
+        ...
+        Gmlo\CFDI\CFDIServiceProvider:class,
+    ],
+...
+```
+
 ### Crear archivos .cer.pem y .key.pem
 Con ayuda de la clase `Gmlo\CFDI\OpenSSL`  podemos generar los archivos .pem.
 El metodo `generatePemFiles(..)` ademas valida que los certificados esten vigentes y concuerden con el RFC y contraseña proporcionada.
