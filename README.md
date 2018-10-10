@@ -75,7 +75,18 @@ $nomina->generate();
 echo $nomina->getXML();
 ```
 
-
+### Leer XML del CFDI
+Podemos recuperar la información del XML con la ayuda de nuestra clase `\Gmlo\CFDI\CFDIReader`, con el que podras acceder a los nodos y atributos. ya sea con los nombres originales o con su traducción a ingles. En caso de los conjuntos de nodos del mismo tipo como por ejemplo los `CFDI:Conceptos` seran agrupados en una `Collection`.
+Ejemplo:
+```php
+$cfdi = new CFDIReader('/path/to/CFDI.xml');
+// Obtener información de un atributo (Con los nombres originales)
+echo $cfdi->Emisor->Rfc;
+// Ahora en ingles, minúsculas y en snake_case:
+echo $cfdi->transmitter->rfc;
+// Otras funciones:
+echo $cfdi->toJson();
+```
 
 ### ToDo
 * Cancelaciones
