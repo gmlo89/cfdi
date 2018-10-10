@@ -14,10 +14,11 @@ composer require gmlo89/cfdi
 ```
 Agregar el Service Provider en `config/app.php`
 ```php
+use Gmlo\CFDI\CFDIServiceProvider;
 ...
     'providers' => [
         ...
-        Gmlo\CFDI\CFDIServiceProvider:class,
+        CFDIServiceProvider:class,
     ],
 ...
 ```
