@@ -29,6 +29,12 @@ class OpenSSL
         $this->rfc = $rfc;
     }
 
+    /**
+     * Generate the .pem files in the specified directory
+     *
+     * @param [type] $pem_directory
+     * @return void
+     */
     public function generatePemFiles($pem_directory = null)
     {
         $this->pem_path = $pem_directory . '/' . strtoupper($this->rfc) . '_' . date('YmdHms');
@@ -125,11 +131,16 @@ class OpenSSL
      */
     public function generatePEMCer()
     {
-        if ($this->runCommand("openssl x509 -inform DER -outform PEM -in {$this->cer_path} -pubkey -out {$this->pem_path}.cer.pem")->isSuccessful()) {
+        $command = "openssl x509 -inform DER -outform PEM -in {$this->cer_path} -pubkey -out {$this->pem_path}.cer.pem";
+        if ($this->runCommand($command)->isSuccessful()) {
             $this->cer_pem_path = $this->pem_path . '.cer.pem';
             return true;
         }
-        throw new BillerException("Ocurrio un error al intentar generar el archivo {$this->pem_path}.cer.pem");
+        $message = 'Ocurrio un error al intentar generar el archivo .cer.pem';
+        if (config('app.debug')) {
+            $message .= ' - COMMAND: ' . $command;
+        }
+        throw new BillerException($message);
     }
 
     /**
