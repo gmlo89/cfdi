@@ -158,7 +158,7 @@ class CFDIReader
             'data' => $this->toJson(),
             'iva' => $this->taxes->transfers->where('tax', '002')->sum('amount'),
             'iva_rate' => $this->taxes->transfers->where('tax', '002')->first()->rate,
-            'sumary' => $this->sumary
+            'sumary' => str_limit($this->sumary, 180)
         ];
     }
 
