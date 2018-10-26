@@ -63,7 +63,7 @@ return [
     'Base' => 'base',
     'TotalImpuestosTrasladados' => 'total_tax_transferred',
     'TimbreFiscalDigital' => 'stamp',
-    '' => '',
+
     '' => '',
     '' => '',
     '' => '',
