@@ -156,8 +156,8 @@ class CFDIReader
             'uuid' => $this->complement->stamp->uuid,
             'stamping_at' => Carbon::parse($this->complement->stamp->stamping_at),
             'data' => $this->toJson(),
-            'iva' => $this->taxes->transfers->where('tax', '002')->sum('amount'),
-            'iva_rate' => $this->taxes->transfers->where('tax', '002')->first()->rate,
+            'iva' => isset($this->taxes->transfers) ? $this->taxes->transfers->where('tax', '002')->sum('amount') : 0,
+            'iva_rate' => isset($this->taxes->transfers) ? $this->taxes->transfers->where('tax', '002')->first()->rate : 0,
             'sumary' => str_limit($this->sumary, 180)
         ];
     }
