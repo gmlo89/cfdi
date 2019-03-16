@@ -43,7 +43,7 @@ echo $openssl->end_date;
 ### Generar recibo de nomina
 A continuación un ejemplo de como generar un recibo de nomina.
 ```php
-$nomina = new CFDINomina([
+$nomina = new Gmlo\CFDI\Nomina([
     'pay_way' => '99',
     'pay_method' => 'PUE',
     'zip_code' => '23000',

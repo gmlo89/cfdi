@@ -69,7 +69,7 @@ class CFDIServiceProvider extends ServiceProvider
     protected function loadConfigFiles()
     {
         $config_files = [
-            'countries', 'ine', 'tax_regime', 'taxes', 'types', 'units', 'cfdi_uses', 'core', 'pay_methods', 'pay_way',
+            'countries', 'ine', 'tax_regime', 'taxes', 'types', 'units', 'cfdi_uses', 'core', 'pay_methods', 'pay_way', 'others'
         ];
         foreach ($config_files as $file) {
             $configPath = __DIR__ . "/config/{$file}.php";

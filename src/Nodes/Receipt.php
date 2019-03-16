@@ -83,9 +83,9 @@ class Receipt extends NodeCFDI
     {
         return [
             'pay_way' => 'required|in:' . implode(',', array_keys(sat_catalogs()->payWaysList())),
-            'subtotal' => 'required|numeric|min:.01',
+            'subtotal' => 'required|numeric',
             'discount' => 'nullable|numeric',
-            'total' => 'required|numeric|min:.01',
+            'total' => 'required|numeric',
             'type' => 'required|in:I,E,N',
             'pay_method' => 'required|in:' . implode(',', array_keys(config('cfdi.pay_methods'))),
             'zip_code' => 'nullable|required',
@@ -100,6 +100,9 @@ class Receipt extends NodeCFDI
         $this->addChild($this->transmitter);
         $this->addChild($this->receiver);
 
+        $this->total = 0;
+        $this->subtotal = 0;
+        $this->discount = 0;
         if (count($this->concepts) > 0) {
             $concepts = new Concepts();
             $this->total = 0;

@@ -67,4 +67,25 @@ class SatCatalogs
                     });
         return $x ? (object)$x : null;
     }
+
+    public function taxesCodesList()
+    {
+        $x = collect(config('cfdi.taxes'));
+        return $x->pluck('code')->toArray();
+    }
+
+    public function getTax($type)
+    {
+        return (object)config('cfdi.taxes.' . $type);
+    }
+
+    public function getTaxByCode($code)
+    {
+        $taxes = collect(config('cfdi.taxes'));
+        $tax = $taxes->where('code', $code)->first();
+        if ($tax) {
+            return (object)$tax;
+        }
+        return null;
+    }
 }

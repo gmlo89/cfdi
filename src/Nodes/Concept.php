@@ -5,6 +5,9 @@ namespace Gmlo\CFDI\Nodes;
 class Concept extends NodeCFDI
 {
     public $node_name = 'cfdi:Concepto';
+
+    protected $transferred_taxes = [];
+
     protected $dictionary = [
         'quantity' => 'Cantidad',
         'price' => 'ValorUnitario',
@@ -34,6 +37,19 @@ class Concept extends NodeCFDI
     {
         //$this->validate();
 
+        if (count($this->transferred_taxes) > 0) {
+            $taxes = new Taxes();
+            $transferred_taxes = new TransferredTaxes();
+
+            foreach ($this->transferred_taxes as $tax) {
+                $tax->calcule();
+                $transferred_taxes->addChild($tax);
+            }
+
+            $taxes->addChild($transferred_taxes);
+            $this->addChild($taxes);
+        }
+
         $this->import = ($this->quantity * $this->price);
         if (!$this->discount) {
             $this->discount = 0;
@@ -41,6 +57,16 @@ class Concept extends NodeCFDI
         //$this->import -= $this->discount;
 
         // calcule taxs
+    }
+
+    public function addTransferredTax(TransferredTax $tax)
+    {
+        $this->transferred_taxes[] = $tax;
+    }
+
+    public function getTransferredTaxes()
+    {
+        return $this->transferred_taxes;
     }
 
     /*public function toXMLArray()

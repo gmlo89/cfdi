@@ -50,8 +50,36 @@ class CFDIReader
         $this->iterator($xml, $result, "//{$this->type}:Comprobante");
 
         $this->data = collect($result)->first();
+
+        $this->data['cadena_original'] = $this->makeOriginalString($xml);
+
         $this->en_data = $this->translate($this->data);
         $this->es_data = $this->translate($this->data, 'es');
+        $this->en_data->url_qr = $this->makeUrl();
+        $this->es_data->url_qr = $this->makeUrl();
+    }
+
+    protected function makeOriginalString($xml)
+    {
+        $xsl = new \DOMDocument('1.0', 'UTF-8');
+        $xsl->load(__DIR__ . '/resources/xslt/3.3/cadenaoriginal_3_3.xslt');
+        $proc = new \XSLTProcessor;
+        $proc->importStyleSheet($xsl);
+        return $proc->transformToXML($xml);
+    }
+
+    protected function makeUrl()
+    {
+        $totals = explode('.', number_format($this->total, 6, '.', ''));
+        $total = str_pad($totals[0], 10, '0', STR_PAD_LEFT) . '.' . $totals[1];
+
+        $params = [
+            're' => $this->transmitter->rfc,
+            'rr' => $this->receiver->rfc,
+            'tt' => $total,
+            'Id' => $this->complement->stamp->uuid,
+        ];
+        return '?' . http_build_query($params);
     }
 
     protected function translate($data, $lang = 'en')
@@ -59,7 +87,7 @@ class CFDIReader
         if (!is_array($data)) {
             return $data;
         }
-        $aux = [];
+        /*$aux = [];
         $is_collection = false;
         foreach ($data as $key => $value) {
             if (is_integer($key)) {
@@ -72,7 +100,20 @@ class CFDIReader
             }
         }
 
-        return ($is_collection) ? collect($aux) : (object)$aux;
+        return ($is_collection) ? collect($aux) : (object)$aux;*/
+        $aux = new CFDINode();
+        foreach ($data as $key => $value) {
+            if (is_integer($key)) {
+                $aux->items->push($this->translate($value, $lang));
+            //$is_collection = true;
+                //$aux[$key] = $this->translate($value, $lang);
+            } elseif ($lang == 'en') {
+                $aux->{trans('CFDI::translation.' . $key)} = $this->translate($value, $lang);
+            } elseif ($lang == 'es') {
+                $aux->{$key} = $this->translate($value, $lang);
+            }
+        }
+        return $aux;
     }
 
     /**
@@ -90,26 +131,24 @@ class CFDIReader
             $result[$key] = (string)$xml->attributes()->{$key};
         }
 
-        foreach ($xml as $key => $child) {
-            $new_path = $path . "//{$this->type}:{$key}";
-            $this->iterator($child, $result, $new_path);
-        }
-
-        if ($name == 'Complemento') {
-            $path = $path . '//t:TimbreFiscalDigital';
-            $ns = $xml->getNamespaces(true);
-
-            $xml->registerXPathNamespace('c', $ns['cfdi']);
-            $xml->registerXPathNamespace('t', $ns['tfd']);
-
-            foreach ($xml->xpath($path) as $children) {
-                $this->iterator($children, $result, $path);
+        $namespaces = $xml->getNamespaces(true);
+        foreach ($namespaces as $pre => $ns) {
+            foreach ($xml->children($ns) as $k => $v) {
+                $new_path = $path . "//{$pre}:{$k}";
+                $this->iterator($v, $result, $new_path);
             }
         }
 
         $path_parts = explode('//', $path);
 
-        if (count($path_parts) >= 1 and $path_parts[count($path_parts) - 2] == last($path_parts) . 's') {
+        if (ends_with($path, 'Deduccion')) {
+            //    dd($path_parts);
+        }
+
+        if (
+            count($path_parts) >= 1 and
+            in_array($path_parts[count($path_parts) - 2], [last($path_parts) . 's', last($path_parts) . 'es'])
+            ) {
             $parent[] = $result;
         } else {
             $parent[$name] = $result;
@@ -127,16 +166,16 @@ class CFDIReader
 
     public function __get($name)
     {
-        if (isset($this->en_data->{$name})) {
+        if (!is_null($this->en_data->{$name})) {
             return $this->en_data->{$name};
         }
 
-        if (isset($this->es_data->{$name})) {
+        if (!is_null($this->es_data->{$name})) {
             return $this->es_data->{$name};
         }
 
-        if (method_exists($this, 'get' . ucfirst($name))) {
-            return $this->{'get' . ucfirst($name)}();
+        if (method_exists($this, 'get' . ucfirst(camel_case($name)))) {
+            return $this->{'get' . ucfirst(camel_case($name))}();
         }
 
         return null;
@@ -162,10 +201,35 @@ class CFDIReader
         ];
     }
 
+    public function getPaymentMethodStr()
+    {
+        return $this->payment_method . ' - ' . config('cfdi.pay_methods.' . $this->payment_method);
+    }
+
+    public function getPaymentWayStr()
+    {
+        return $this->payment_way . ' - ' . config('cfdi.pay_way._' . $this->payment_way);
+    }
+
+    public function getStampingDate()
+    {
+        return Carbon::parse($this->complement->stamp->stamping_at);
+    }
+
+    public function getFolioStr()
+    {
+        return str_pad($this->folio, 4, '0', STR_PAD_LEFT);
+    }
+
     public function importFromJson($json)
     {
         $this->data = json_decode($json, true);
         $this->en_data = $this->translate($this->data);
         $this->es_data = $this->translate($this->data, 'es');
+    }
+
+    public function getUuid()
+    {
+        return $this->complement->stamp->uuid;
     }
 }

@@ -67,7 +67,7 @@ class NodeCFDI
 
         if ($validator->fails()) {
             $message = 'Tienes un error en ' . $this->node_name . '. ';
-            //dd($this->getData());
+
             if (config('app.env') == 'local' and $validator->errors()) {
                 $message .= json_encode($validator->errors());
             }
