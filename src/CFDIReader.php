@@ -70,6 +70,9 @@ class CFDIReader
 
     protected function makeUrl()
     {
+        if (!isset($this->complement) or !isset($$this->complement->stamp)) {
+            return '';
+        }
         $totals = explode('.', number_format($this->total, 6, '.', ''));
         $total = str_pad($totals[0], 10, '0', STR_PAD_LEFT) . '.' . $totals[1];
 

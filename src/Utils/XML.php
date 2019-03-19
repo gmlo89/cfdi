@@ -41,9 +41,46 @@ class XML
 
         $this->preStamp($root, $cfdi);
 
+        //$this->validate();
+
         if (config('app.env') == 'local') {
             $this->xml->save(storage_path('app/cfdi_tmp.xml'));
         }
+    }
+
+    /**
+     * Probando..
+     *
+     */
+    public function validate()
+    {
+        $sxe = new \SimpleXMLElement($this->xml->saveXML());
+        $schemaLocations = (string)$sxe->attributes('xsi', true)->schemaLocation;
+
+        $schemaLocations = explode(' ', $schemaLocations);
+        $xsds = [];
+        foreach ($schemaLocations as $schemaLocation) {
+            if (ends_with($schemaLocation, '.xsd')) {
+                $xsds[] = basename($schemaLocation);
+            }
+        }
+
+        $xml = new \DOMDocument('1.0', 'utf-8');
+        $xml->loadXML($this->xml->saveXML(), LIBXML_NOBLANKS);
+        libxml_use_internal_errors(true);
+        $errors = [];
+
+        foreach ($xsds as $xsd) {
+            $xsd_path = __DIR__ . '/../resources/xsd/3.3/' . $xsd;
+
+            if (!$xml->schemaValidate($xsd_path)) {
+                foreach (libxml_get_errors() as $error) {
+                    $errors[] = $error->message;
+                }
+                libxml_clear_errors();
+            }
+        }
+        \Log::error($errors);
     }
 
     public function preStamp($root, $cfdi)
@@ -118,82 +155,5 @@ class XML
             $this->createNode($element, $child);
         }
         return $element;
-    }
-
-    public function generate2($data)
-    {
-        $this->data = $data;
-        $this->xml = new \DOMDocument('1.0', 'UTF-8');
-        $root = $this->xml->createElement('cfdi:Comprobante');
-        $root = $this->xml->appendChild($root);
-        $this->addAttributes($root, $data->general);
-
-        $this->createNode($root, $data->transmitter);
-
-        $this->createNode($root, $data->receiver);
-
-        if ($data->concepts) {
-            $this->createNode($root, $data->concepts);
-
-            //$concepts = $this->xml->createElement('cfdi:Conceptos');
-            //$concepts = $root->appendChild($concepts);
-            //$this->addAttributes($concepts);
-
-            /*foreach ($data->concepts as $concept) {
-                $concept_ = $this->xml->createElement('cfdi:Concepto');
-                $concept_ = $concepts->appendChild($concept_);
-
-                //$taxes = $concept['taxes'];
-                //unset($concept['taxes']);
-
-                $this->addAttributes($concept_, $concept);
-
-                /*
-                $taxes_ = $this->xml->createElement('cfdi:Impuestos');
-                $taxes_ = $concept_->appendChild($taxes_);
-
-                $taxes_t = $this->xml->createElement('cfdi:Traslados');
-                $taxes_t = $taxes_->appendChild($taxes_t);*/
-                /*
-                foreach ($taxes['transfers'] as $tax) {
-                    $tax_ = $this->xml->createElement('cfdi:Traslado');
-                    $tax_ = $taxes_t->appendChild($tax_);
-                    $this->addAttributes($tax_, $tax);
-                }*/
-            //}
-        }
-
-        if ($data->complements) {
-            $complements = $this->createNode($root, $data->complements);
-        }
-
-        /*if (count($data->tax_transferred) > 0) {
-            $taxes = $this->xml->createElement('cfdi:Impuestos');
-            $taxes = $root->appendChild($taxes);
-            //$this->addAttributes($taxes);
-
-            $taxes_t = $this->xml->createElement('cfdi:Traslados');
-            $taxes_t = $taxes->appendChild($taxes_t);
-            //$this->addAttributes($taxes_t);
-
-            $tax_transferreds = 0;
-            foreach ($data->tax_transferred as $tax) {
-                $aux = $this->xml->createElement('cfdi:Traslado');
-                $aux = $taxes_t->appendChild($aux);
-                $this->addAttributes($aux, $tax);
-                $tax_transferreds += $tax['Importe'];
-            }
-            if ($tax_transferreds > 0) {
-                $this->addAttributes($taxes, ['TotalImpuestosTrasladados' => $tax_transferreds]);
-            }
-        }*/
-
-        $original_string = $this->makeOriginalString();
-
-        $this->preStamp($original_string, $root);
-
-        if (config('app.env') == 'local') {
-            $this->xml->save(storage_path('app/cfdi_tmp.xml'));
-        }
     }
 }

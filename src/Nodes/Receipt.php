@@ -32,7 +32,6 @@ class Receipt extends NodeCFDI
         'xmlns_xsi' => 'xmlns:xsi',
         'xsi_schemaLocation' => 'xsi:schemaLocation',
         'xmlns_nomina12' => 'xmlns:nomina12',
-        '' => '',
     ];
     protected $data = [];
 
