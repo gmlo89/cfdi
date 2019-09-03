@@ -71,6 +71,9 @@ class NodeCFDI
             if (config('app.env') == 'local' and $validator->errors()) {
                 $message .= json_encode($validator->errors());
             }
+            //dd($validator->errors());
+            //dd($this->getRules()['unit']);
+            //dd($this->data);
             throw new CFDIException($message, 0, null, ['errors' => $validator->errors()->all()]);
         }
         return true;

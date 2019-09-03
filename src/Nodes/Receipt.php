@@ -27,11 +27,13 @@ class Receipt extends NodeCFDI
         'date' => 'Fecha',
         'version' => 'Version',
         'currency' => 'Moneda',
+        'exchange_rate' => 'TipoCambio',
         'seal' => 'Sello',
         'xmlns_cfdi' => 'xmlns:cfdi',
         'xmlns_xsi' => 'xmlns:xsi',
         'xsi_schemaLocation' => 'xsi:schemaLocation',
         'xmlns_nomina12' => 'xmlns:nomina12',
+        'xmlns_pago10' => 'xmlns:pago10'
     ];
     protected $data = [];
 
@@ -61,9 +63,20 @@ class Receipt extends NodeCFDI
             'cert' => '@',
         ];
 
+        if (isset($data['key_path'])) {
+            $this->key_path = $data['key_path'];
+            unset($data['key_path']);
+        } else {
+            $this->key_path = env('CFDI_KEY_PEM_PATH');
+        }
+        if (isset($data['cer_path'])) {
+            $this->key_path = $data['cer_path'];
+            unset($data['cer_path']);
+        } else {
+            $this->cer_path = env('CFDI_CER_PEM_PATH');
+        }
+
         parent::__construct($data, $other_rules);
-        $this->key_path = env('CFDI_KEY_PEM_PATH');
-        $this->cer_path = env('CFDI_CER_PEM_PATH');
     }
 
     public function generate()
@@ -81,16 +94,18 @@ class Receipt extends NodeCFDI
     protected function getRules()
     {
         return [
-            'pay_way' => 'required|in:' . implode(',', array_keys(sat_catalogs()->payWaysList())),
+            'pay_way' => 'nullable|in:' . implode(',', array_keys(sat_catalogs()->payWaysList())),
             'subtotal' => 'required|numeric',
             'discount' => 'nullable|numeric',
             'total' => 'required|numeric',
-            'type' => 'required|in:I,E,N',
-            'pay_method' => 'required|in:' . implode(',', array_keys(config('cfdi.pay_methods'))),
+            'type' => 'required|in:I,E,N,P',
+            'pay_method' => 'nullable|in:' . implode(',', array_keys(config('cfdi.pay_methods'))),
             'zip_code' => 'nullable|required',
             'serie' => 'required',
             'folio' => 'required',
             'cert_number' => 'required',
+            'currency' => 'required',
+            'exchange_rate' => 'nullable',
         ];
     }
 
@@ -101,20 +116,24 @@ class Receipt extends NodeCFDI
 
         $this->total = 0;
         $this->subtotal = 0;
-        $this->discount = 0;
+        $discount = 0;
         if (count($this->concepts) > 0) {
             $concepts = new Concepts();
-            $this->total = 0;
-            $this->subtotal = 0;
-            $this->discount = 0;
+            //$this->total = 0;
+            //$this->subtotal = 0;
+            //$this->discount = 0;
             foreach ($this->concepts as $item) {
                 $item->calcule();
                 $this->subtotal += $item->import;
-                $this->discount += $item->discount;
+                $discount += $item->discount;
                 $concepts->addChild($item);
             }
-            $this->total = $this->subtotal - $this->discount;
+            $this->total = $this->subtotal - $discount;
+
             $this->addChild($concepts);
+        }
+        if ($discount > 0) {
+            $this->discount = $discount;
         }
     }
 

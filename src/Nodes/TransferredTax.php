@@ -31,5 +31,6 @@ class TransferredTax extends NodeCFDI
             $this->import = $this->base * $this->rate;
         }
         $this->rate = number_format($this->rate, 6, '.', '');
+        $this->import = number_format($this->import, 2, '.', '');
     }
 }

@@ -70,7 +70,7 @@ class CFDIReader
 
     protected function makeUrl()
     {
-        if (!isset($this->complement) or !isset($$this->complement->stamp)) {
+        if ($this->complement == null or $this->complement->stamp == null) {
             return '';
         }
         $totals = explode('.', number_format($this->total, 6, '.', ''));
@@ -217,6 +217,11 @@ class CFDIReader
     public function getStampingDate()
     {
         return Carbon::parse($this->complement->stamp->stamping_at);
+    }
+
+    public function getCfdiTypeStr()
+    {
+        return config('cfdi.others.cfdi_types.' . $this->cfdi_type);
     }
 
     public function getFolioStr()

@@ -59,11 +59,16 @@ class XML
 
         $schemaLocations = explode(' ', $schemaLocations);
         $xsds = [];
+
         foreach ($schemaLocations as $schemaLocation) {
             if (ends_with($schemaLocation, '.xsd')) {
                 $xsds[] = basename($schemaLocation);
             }
         }
+        $xsds = [
+            __DIR__ . '/../resources/xsd/3.3/cfdv33.xsd',
+            __DIR__ . '/../resources/xsd/3.3/Pagos10.xsd'
+        ];
 
         $xml = new \DOMDocument('1.0', 'utf-8');
         $xml->loadXML($this->xml->saveXML(), LIBXML_NOBLANKS);
@@ -71,9 +76,9 @@ class XML
         $errors = [];
 
         foreach ($xsds as $xsd) {
-            $xsd_path = __DIR__ . '/../resources/xsd/3.3/' . $xsd;
+            //$xsd_path = __DIR__ . '/../resources/xsd/3.3/' . $xsd;
 
-            if (!$xml->schemaValidate($xsd_path)) {
+            if (!$xml->schemaValidate($xsd)) {
                 foreach (libxml_get_errors() as $error) {
                     $errors[] = $error->message;
                 }
