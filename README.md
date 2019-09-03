@@ -40,6 +40,64 @@ echo $openssl->start_date;
 //Fecha de fin del periodo de validez del certificado.
 echo $openssl->end_date; 
 ```
+### Generar una factura de venta
+```php
+$invoice = new \Gmlo\CFDI\Invoice([
+    'pay_way' => 99,
+    'pay_method' => 'PUE',
+    'zip_code' => '23000',
+    'serie' => 'A',
+    'folio' => 123,
+    'cert_number' => '20001000000300022762',
+    'currency' => 'MXN',
+    //'exchange_rate' => 20, (Opcional para otras monedas)
+]);
+// Asignamos los certificados
+$invoice->setKeyPath('/path/to/key_file');
+$invoice->setCerPath('/Path/to/cer_file');
+
+// Empresa que factura
+$invoice->setTransmitter(new Transmitter([
+    'rfc' => 'TU-RFC',
+    'name' => 'Razón social',
+    'tax_regime' => '601', //Regimen fiscal
+]));
+
+// datos del cliente
+$invoice->setReceiver(new Receiver([
+    'rfc' => 'RFC del cliente',
+    'name' => 'Razón social del cliente',
+    'how_use' => 'G02', // uso del CFDI
+]));
+
+// Creamos un objeto para el concepto
+$concept = new Concept([
+    'quantity' => 1,
+    'price' => 10000.00,
+    'description' => 'Computadora',
+    'category_code' => '43211501', // Código del SAT
+    'unit' => 'H87', // Clave de la unidad de medida (SAT)
+    'unit_str' => 'Pieza', // Nombre de la unidad de medida (SAT)
+]);
+
+// Se agrega un impuesto al concepto
+$concept->addTransferredTax(new TransferredTax([
+    'base' => 10000.00, // Precio unitario x cantidad
+    'tax' => '002', // Código del impuesto
+    'factor_type' => 'Tasa', // Factor
+    'rate' => .16, // Porcentaje
+]));
+
+// Se agrega el concepto a la factura.
+$invoice->addConcept($concept);
+        
+// Generamos el CFDI
+$invoice->generate();
+// Ya puedes obtener el XML generado
+echo $invoice->getXML();
+        
+```
+
 ### Generar recibo de nomina
 A continuación un ejemplo de como generar un recibo de nomina.
 ```php
